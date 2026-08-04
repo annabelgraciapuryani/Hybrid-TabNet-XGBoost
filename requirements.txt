@@ -4,7 +4,3 @@ numpy
 plotly
 openpyxl
 scikit-learn
-joblib
-xgboost
-torch
-pytorch-tabnet
