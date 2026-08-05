@@ -341,7 +341,13 @@ elif menu == "🌧 Prediction":
             st.write(X.columns.tolist())
             
             # Ubah ke numpy agar sama seperti saat training
-            X_scaled = scaler.transform(X.values)
+            try:
+                X_scaled = scaler.transform(X.values)
+            except Exception as e:
+                st.error(str(e))
+                st.write("Shape X:", X.shape)
+                st.write("Jumlah fitur scaler:", scaler.n_features_in_)
+                st.stop()
 
             # ==========================================
             # Predict
