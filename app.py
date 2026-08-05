@@ -399,3 +399,144 @@ elif menu == "🌧 Prediction":
                 use_container_width=True
 
             )
+# =====================================================
+# MODEL EVALUATION
+# =====================================================
+
+elif menu == "📊 Model Evaluation":
+
+    st.title("📊 Model Evaluation")
+
+    model_name = st.selectbox(
+
+        "Select Evaluation Model",
+
+        [
+
+            "Hybrid TabNet-XGBoost",
+
+            "Hybrid TabNet-XGBoost (Extreme)",
+
+            "Hybrid TabNet-SVR"
+
+        ]
+
+    )
+
+    result = evaluation_data[model_name]
+
+    actual = result["Actual"]
+    pred = result["Prediction"]
+
+    rmse = np.sqrt(mean_squared_error(actual,pred))
+    mae = mean_absolute_error(actual,pred)
+
+    mask = actual != 0
+
+    mape = np.mean(
+
+        np.abs(
+
+            (actual[mask]-pred[mask])/
+
+            actual[mask]
+
+        )
+
+    )*100
+
+    st.subheader("Performance Metrics")
+
+    c1,c2,c3 = st.columns(3)
+
+    c1.metric("RMSE",round(rmse,3))
+    c2.metric("MAE",round(mae,3))
+    c3.metric("MAPE (%)",round(mape,3))
+
+    st.divider()
+
+    st.subheader("Prediction Result (Testing Data 2025)")
+
+    st.dataframe(result,use_container_width=True)
+
+    st.divider()
+
+    st.subheader("Actual vs Prediction")
+
+    fig = px.line(
+
+        result,
+
+        x="Tanggal",
+
+        y=["Actual","Prediction"],
+
+        markers=False,
+
+        template="plotly_white"
+
+    )
+
+    fig.update_layout(
+
+        height=550,
+
+        xaxis_title="Date",
+
+        yaxis_title="Rainfall (mm)",
+
+        legend_title="",
+
+        hovermode="x unified"
+
+    )
+
+    fig.update_traces(
+
+        line=dict(width=2)
+
+    )
+
+    st.plotly_chart(
+
+        fig,
+
+        use_container_width=True
+
+    )
+
+    st.divider()
+
+    st.subheader("Prediction Distribution")
+
+    fig2 = px.scatter(
+
+        result,
+
+        x="Actual",
+
+        y="Prediction",
+
+        opacity=0.7,
+
+        template="plotly_white"
+
+    )
+
+    fig2.update_layout(
+
+        height=500,
+
+        xaxis_title="Actual Rainfall (mm)",
+
+        yaxis_title="Predicted Rainfall (mm)"
+
+    )
+
+    st.plotly_chart(
+
+        fig2,
+
+        use_container_width=True
+
+    )
