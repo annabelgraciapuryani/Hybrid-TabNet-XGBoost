@@ -20,22 +20,21 @@ st.set_page_config(
 # LOAD MODEL
 # =====================================================
 
-@st.cache_resource
-def load_models():
+@st.cache_data
+def load_evaluation():
 
-    models = {
+    return {
+
         "Hybrid TabNet-XGBoost":
-            joblib.load("models/hybrid_xgb.pkl"),
+            pd.read_csv("data/hasil_evaluasi.csv"),
 
         "Hybrid TabNet-XGBoost (Extreme)":
-            joblib.load("models/hybrid_extreme.pkl"),
+            pd.read_csv("data/hasil_evaluasi_ektrem.csv"),
 
         "Hybrid TabNet-SVR":
-            joblib.load("models/hybrid_svr.pkl")
+            pd.read_csv("data/hasil_evaluasi_svr.csv")
+
     }
-
-    return models
-
 
 models = load_models()
 
