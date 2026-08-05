@@ -335,8 +335,13 @@ elif menu == "🌧 Prediction":
             # ==========================================
 
             scaler = models[model_name]["scaler"]
-
-            X_scaled = scaler.transform(X)
+            
+            # Debug
+            st.write("Jumlah fitur :", len(X.columns))
+            st.write(X.columns.tolist())
+            
+            # Ubah ke numpy agar sama seperti saat training
+            X_scaled = scaler.transform(X.values)
 
             # ==========================================
             # Predict
