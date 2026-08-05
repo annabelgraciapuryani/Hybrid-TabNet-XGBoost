@@ -454,7 +454,7 @@ elif menu == "📊 Model Evaluation":
 
         )
 
-    )*100
+    )*10
 
     st.subheader("Performance Metrics")
 
