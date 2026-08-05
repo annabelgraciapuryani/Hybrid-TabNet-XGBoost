@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import joblib
+from pathlib import Path
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 # =====================================================
@@ -16,41 +17,76 @@ st.set_page_config(
 )
 
 # =====================================================
-# LOAD MODEL & SCALER
+# PATH
+# =====================================================
+
+MODEL_DIR = Path("models")
+DATA_DIR = Path("data")
+
+# =====================================================
+# LOAD MODEL
 # =====================================================
 
 @st.cache_resource
 def load_models():
 
-    return {
+    files = {
 
         "Hybrid TabNet-XGBoost":{
 
-            "model":joblib.load("models/hybrid_xgb.pkl"),
-            "scaler":joblib.load("models/scaler_xgb.pkl")
+            "model":"hybrid_xgb.pkl",
+            "scaler":"scaler_xgb.pkl"
 
         },
 
         "Hybrid TabNet-XGBoost (Extreme)":{
 
-            "model":joblib.load("models/hybrid_extreme.pkl"),
-            "scaler":joblib.load("models/scaler_extreme.pkl")
+            "model":"hybrid_extreme.pkl",
+            "scaler":"scaler_ekstrem.pkl"
 
         },
 
         "Hybrid TabNet-SVR":{
 
-            "model":joblib.load("models/hybrid_svr.pkl"),
-            "scaler":joblib.load("models/scaler_svr.pkl")
+            "model":"hybrid_svr.pkl",
+            "scaler":"scaler_svr.pkl"
 
         }
 
     }
 
+    loaded = {}
+
+    for name, f in files.items():
+
+        model_path = MODEL_DIR / f["model"]
+        scaler_path = MODEL_DIR / f["scaler"]
+
+        if not model_path.exists():
+
+            st.error(f"Model tidak ditemukan : {model_path}")
+            st.stop()
+
+        if not scaler_path.exists():
+
+            st.error(f"Scaler tidak ditemukan : {scaler_path}")
+            st.stop()
+
+        loaded[name] = {
+
+            "model":joblib.load(model_path),
+
+            "scaler":joblib.load(scaler_path)
+
+        }
+
+    return loaded
+
+
 models = load_models()
 
 # =====================================================
-# LOAD EVALUATION DATA
+# LOAD EVALUATION
 # =====================================================
 
 @st.cache_data
@@ -59,20 +95,20 @@ def load_evaluation():
     return {
 
         "Hybrid TabNet-XGBoost":
-            pd.read_csv("data/hasil_evaluasi.csv"),
+            pd.read_csv(DATA_DIR/"hasil_evaluasi.csv"),
 
         "Hybrid TabNet-XGBoost (Extreme)":
-            pd.read_csv("data/hasil_evaluasi_ektrem.csv"),
+            pd.read_csv(DATA_DIR/"hasil_evaluasi_ektrem.csv"),
 
         "Hybrid TabNet-SVR":
-            pd.read_csv("data/hasil_evaluasi_svr.csv")
+            pd.read_csv(DATA_DIR/"hasil_evaluasi_svr.csv")
 
     }
 
 evaluation_data = load_evaluation()
 
 # =====================================================
-# FEATURE MODEL
+# FEATURES
 # =====================================================
 
 FEATURES = [
@@ -118,6 +154,7 @@ FEATURES = [
 # =====================================================
 
 if "prediction_result" not in st.session_state:
+
     st.session_state.prediction_result = None
 
 # =====================================================
@@ -148,7 +185,7 @@ menu = st.sidebar.radio(
 # HOME
 # =====================================================
 
-if menu == "🏠 Home":
+if menu=="🏠 Home":
 
     st.title("🌧 Daily Rainfall Prediction")
 
@@ -156,31 +193,33 @@ if menu == "🏠 Home":
 
 ## Hybrid TabNet–XGBoost Based on Radiosonde Data
 
-Aplikasi ini dikembangkan untuk memprediksi intensitas curah hujan harian menggunakan model **Hybrid TabNet–XGBoost** berbasis data pengamatan radiosonde dan meteorologi permukaan dari BMKG Stasiun Meteorologi Kelas I Juanda.
+Aplikasi ini digunakan untuk memprediksi intensitas curah hujan harian menggunakan model Hybrid TabNet–XGBoost berbasis data radiosonde dan meteorologi permukaan BMKG Stasiun Meteorologi Kelas I Juanda.
 
-### Model yang tersedia
+### Model
 
-- Hybrid TabNet–XGBoost
-- Hybrid TabNet–XGBoost (Extreme)
-- Hybrid TabNet–SVR
+- Hybrid TabNet-XGBoost
+- Hybrid TabNet-XGBoost (Extreme)
+- Hybrid TabNet-SVR
 
-### Alur Penggunaan
+### Cara Penggunaan
 
-1. Upload dataset (.xlsx)
-2. Pilih model prediksi
-3. Jalankan proses prediksi
-4. Lihat hasil evaluasi
+1. Upload dataset Excel
+2. Pilih model
+3. Jalankan prediksi
+4. Lihat evaluasi model
 5. Download hasil prediksi
 
 """)
 
-    col1, col2, col3 = st.columns(3)
+    c1,c2,c3=st.columns(3)
 
-    col1.info("📂 Upload Dataset")
-    col2.info("🤖 Prediction")
-    col3.info("📈 Evaluation")
+    c1.info("📂 Upload Dataset")
 
-    st.success("Silakan pilih menu Prediction untuk memulai proses prediksi.")
+    c2.info("🤖 Prediction")
+
+    c3.info("📈 Evaluation")
+
+    st.success("Silakan pilih menu Prediction.")
 
 # =====================================================
 # PREDICTION
@@ -188,11 +227,11 @@ Aplikasi ini dikembangkan untuk memprediksi intensitas curah hujan harian menggu
 
 elif menu == "🌧 Prediction":
 
-    st.title("🌧 Rainfall Prediction")
+    st.title("🌧 Daily Rainfall Prediction")
 
     model_name = st.selectbox(
 
-        "Select Prediction Model",
+        "Prediction Model",
 
         [
 
@@ -214,7 +253,7 @@ elif menu == "🌧 Prediction":
 
     )
 
-    if uploaded:
+    if uploaded is not None:
 
         df = pd.read_excel(uploaded)
 
@@ -222,47 +261,93 @@ elif menu == "🌧 Prediction":
 
         st.dataframe(df.head())
 
-        if st.button("Predict"):
+        st.write("Jumlah Data :", len(df))
+
+        if st.button("🚀 Predict"):
 
             df = df.copy()
 
-            # ==========================
-            # Membuat fitur lag
-            # ==========================
+            # ==========================================
+            # Pastikan kolom numerik
+            # ==========================================
+
+            numeric_columns = [
+
+                "CH",
+
+                "Humi0","WS","KI","Press0","LFC",
+
+                "SI","CCL","500","TT","850",
+
+                "LCL","Height","TPW","700","CAPE"
+
+            ]
+
+            for col in numeric_columns:
+
+                df[col] = pd.to_numeric(
+
+                    df[col],
+
+                    errors="coerce"
+
+                )
+
+            # ==========================================
+            # Membuat Lag
+            # ==========================================
 
             lag_features = [
 
-                "Humi0",
-                "WS",
-                "KI",
-                "Press0",
-                "LFC",
-                "SI",
-                "CCL",
-                "500",
-                "TT",
-                "850",
-                "LCL",
-                "Height",
-                "TPW",
-                "700",
-                "CAPE"
+                "Humi0","WS","KI","Press0","LFC",
+
+                "SI","CCL","500","TT","850",
+
+                "LCL","Height","TPW","700","CAPE"
 
             ]
 
             for col in lag_features:
 
-                df[f"{col}_lag1"] = df[col].shift(1)
+                df[col + "_lag1"] = df[col].shift(1)
 
             df["CH_lag1"] = df["CH"].shift(1)
 
             df = df.dropna().reset_index(drop=True)
 
+            # ==========================================
+            # Cek Feature
+            # ==========================================
+
+            missing = [
+
+                x for x in FEATURES
+
+                if x not in df.columns
+
+            ]
+
+            if len(missing) > 0:
+
+                st.error("Feature berikut tidak ditemukan")
+
+                st.write(missing)
+
+                st.stop()
+
             X = df[FEATURES]
+
+            # ==========================================
+            # Scaling
+            # ==========================================
 
             scaler = models[model_name]["scaler"]
 
             X_scaled = scaler.transform(X)
+
+            # ==========================================
+            # Predict
+            # ==========================================
 
             model = models[model_name]["model"]
 
@@ -280,6 +365,44 @@ elif menu == "🌧 Prediction":
 
             st.session_state.prediction_result = result
 
-            st.success("Prediction Completed Successfully!")
+            # ==========================================
+            # Tampilkan Hasil
+            # ==========================================
 
-            st.dataframe(result.head())
+            st.success("Prediction Completed")
+
+            st.subheader("Prediction Result")
+
+            st.dataframe(result)
+
+            # ==========================================
+            # Grafik
+            # ==========================================
+
+            fig = px.line(
+
+                result,
+
+                x="Tanggal",
+
+                y=["Actual","Prediction"],
+
+                markers=True
+
+            )
+
+            fig.update_layout(
+
+                xaxis_title="Date",
+
+                yaxis_title="Rainfall (mm)"
+
+            )
+
+            st.plotly_chart(
+
+                fig,
+
+                use_container_width=True
+
+            )
