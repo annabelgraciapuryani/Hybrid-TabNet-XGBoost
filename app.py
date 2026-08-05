@@ -201,13 +201,6 @@ Aplikasi ini digunakan untuk memprediksi intensitas curah hujan harian menggunak
 - Hybrid TabNet-XGBoost (Extreme)
 - Hybrid TabNet-SVR
 
-### Cara Penggunaan
-
-1. Upload dataset Excel
-2. Pilih model
-3. Jalankan prediksi
-4. Lihat evaluasi model
-5. Download hasil prediksi
 
 """)
 
