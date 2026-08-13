@@ -694,7 +694,7 @@ elif menu == "🌧️ Prediction":
     )
 
     uploaded = st.file_uploader(
-        "Upload Dataset Bersih (.xlsx)",
+        "Upload Dataset (.xlsx)",
         type=["xlsx"],
     )
 
