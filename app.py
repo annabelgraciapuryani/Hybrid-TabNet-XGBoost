@@ -11,7 +11,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 
 # ============================================================
-# PAGE
+# PAGE CONFIG
 # ============================================================
 
 st.set_page_config(
@@ -27,84 +27,50 @@ DATA_DIR = BASE_DIR / "data"
 
 
 # ============================================================
-# MODEL CONFIG — SESUAI NOTEBOOK COLAB
+# MODEL CONFIGURATION
+# Mengikuti struktur fitur dari notebook Colab.
 # ============================================================
 
-MODELS = {
+MODEL_OPTIONS = [
+    "Hybrid TabNet-XGBoost",
+    "Hybrid TabNet-XGBoost (Extreme)",
+    "Hybrid TabNet-SVR",
+]
+
+MODEL_CONFIG = {
     "Hybrid TabNet-XGBoost": {
-        "file": "hybrid_xgb.pkl",
-        "kind": "xgb",
+        "model_file": "hybrid_xgb.pkl",
+        "scaler_file": None,
         "features": [
-            "Humi0_lag1",
-            "TPW_lag1",
-            "700_lag1",
-            "LCL_lag1",
-            "500_lag1",
-            "KI_lag1",
-            "850_lag4",
-            "LI_lag1",
-            "SI_lag1",
-            "TT_lag3",
-            "CAPE_lag3",
-            "Height_lag1",
-            "LFC_lag1",
-            "Press0_lag7",
-            "Temp0_lag7",
-            "CH_lag1",
-            "month",
-            "month_sin",
-            "month_cos",
+            "Humi0_lag1", "TPW_lag1", "700_lag1", "LCL_lag1",
+            "500_lag1", "KI_lag1", "850_lag4", "LI_lag1",
+            "SI_lag1", "TT_lag3", "CAPE_lag3", "Height_lag1",
+            "LFC_lag1", "Press0_lag7", "Temp0_lag7", "CH_lag1",
+            "month", "month_sin", "month_cos",
         ],
     },
+
     "Hybrid TabNet-XGBoost (Extreme)": {
-        "file": "hybrid_extreme.pkl",
-        "kind": "xgb",
+        "model_file": "hybrid_extreme.pkl",
+        "scaler_file": None,
         "features": [
-            "Humi0_lag1",
-            "TPW_lag1",
-            "700_lag1",
-            "LCL_lag1",
-            "500_lag1",
-            "KI_lag1",
-            "850_lag1",
-            "LI_lag1",
-            "CCL_lag1",
-            "SI_lag1",
-            "CIN_lag1",
-            "CAPE_lag1",
-            "Press0_lag7",
-            "BOYDEN_lag1",
-            "Temp0_lag7",
-            "CH_lag1",
-            "month",
-            "month_sin",
-            "month_cos",
+            "Humi0_lag1", "TPW_lag1", "700_lag1", "LCL_lag1",
+            "500_lag1", "KI_lag1", "850_lag1", "LI_lag1",
+            "CCL_lag1", "SI_lag1", "CIN_lag1", "CAPE_lag1",
+            "Press0_lag7", "BOYDEN_lag1", "Temp0_lag7", "CH_lag1",
+            "month", "month_sin", "month_cos",
         ],
     },
+
     "Hybrid TabNet-SVR": {
-        "file": "hybrid_svr.pkl",
-        "kind": "svr",
+        "model_file": "hybrid_svr.pkl",
         "scaler_file": "scaler_svr.pkl",
         "features": [
-            "Humi0_lag1",
-            "TPW_lag1",
-            "700_lag1",
-            "LCL_lag1",
-            "500_lag1",
-            "KI_lag1",
-            "850_lag4",
-            "LI_lag1",
-            "SI_lag1",
-            "TT_lag3",
-            "CIN_lag1",
-            "Height_lag1",
-            "Press0_lag7",
-            "KO_lag1",
-            "Temp0_lag7",
-            "CH_lag1",
-            "month",
-            "month_sin",
-            "month_cos",
+            "Humi0_lag1", "TPW_lag1", "700_lag1", "LCL_lag1",
+            "500_lag1", "KI_lag1", "850_lag4", "LI_lag1",
+            "SI_lag1", "TT_lag3", "CIN_lag1", "Height_lag1",
+            "Press0_lag7", "KO_lag1", "Temp0_lag7", "CH_lag1",
+            "month", "month_sin", "month_cos",
         ],
     },
 }
@@ -118,7 +84,7 @@ st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(180deg, #f4f9fd 0%, #ffffff 48%, #f7fafc 100%);
+        background: linear-gradient(180deg, #f5faff 0%, #ffffff 48%, #f6f9fc 100%);
     }
 
     [data-testid="stSidebar"] {
@@ -130,7 +96,7 @@ st.markdown(
     }
 
     .hero {
-        padding: 2.5rem 2.6rem;
+        padding: 2.35rem 2.5rem;
         border-radius: 26px;
         background:
             radial-gradient(circle at 88% 18%, rgba(255,255,255,.20), transparent 22%),
@@ -141,19 +107,19 @@ st.markdown(
     }
 
     .hero h1 {
-        font-size: 2.65rem;
+        font-size: 2.6rem;
         margin: 0 0 .45rem 0;
     }
 
     .hero p {
         font-size: 1.03rem;
-        line-height: 1.75;
+        line-height: 1.7;
         max-width: 950px;
         margin: 0;
     }
 
     .card {
-        padding: 1.35rem;
+        padding: 1.3rem;
         border-radius: 19px;
         background: white;
         border: 1px solid #e2edf4;
@@ -167,7 +133,7 @@ st.markdown(
     }
 
     .result-card {
-        padding: 1.6rem;
+        padding: 1.55rem;
         border-radius: 22px;
         background: linear-gradient(135deg, #edf9ff, #ffffff);
         border: 1px solid #cbe8f4;
@@ -176,7 +142,7 @@ st.markdown(
     }
 
     .result-value {
-        font-size: 3.1rem;
+        font-size: 3rem;
         font-weight: 750;
         color: #087ea4;
         line-height: 1.2;
@@ -194,15 +160,15 @@ st.markdown(
 
 
 # ============================================================
-# LOAD MODELS
+# MODEL LOADING
 # ============================================================
 
 @st.cache_resource
 def load_models():
     loaded = {}
 
-    for name, cfg in MODELS.items():
-        model_path = MODEL_DIR / cfg["file"]
+    for name, config in MODEL_CONFIG.items():
+        model_path = MODEL_DIR / config["model_file"]
 
         if not model_path.exists():
             raise FileNotFoundError(
@@ -211,23 +177,21 @@ def load_models():
 
         model = joblib.load(model_path)
 
-        item = {
-            "model": model,
-            "kind": cfg["kind"],
-            "features": cfg["features"],
-        }
-
-        if cfg["kind"] == "svr":
-            scaler_path = MODEL_DIR / cfg["scaler_file"]
+        scaler = None
+        if config["scaler_file"] is not None:
+            scaler_path = MODEL_DIR / config["scaler_file"]
 
             if not scaler_path.exists():
                 raise FileNotFoundError(
-                    f"Scaler SVR tidak ditemukan: {scaler_path}"
+                    f"Scaler tidak ditemukan: {scaler_path}"
                 )
 
-            item["scaler"] = joblib.load(scaler_path)
+            scaler = joblib.load(scaler_path)
 
-        loaded[name] = item
+        loaded[name] = {
+            "model": model,
+            "scaler": scaler,
+        }
 
     return loaded
 
@@ -240,7 +204,7 @@ def load_evaluation():
         "Hybrid TabNet-SVR": "hasil_evaluasi_svr.csv",
     }
 
-    result = {}
+    loaded = {}
 
     for name, filename in files.items():
         path = DATA_DIR / filename
@@ -250,16 +214,18 @@ def load_evaluation():
                 f"File evaluasi tidak ditemukan: {path}"
             )
 
-        result[name] = pd.read_csv(path)
+        df = pd.read_csv(path)
+        df.columns = [str(c).strip() for c in df.columns]
+        loaded[name] = df
 
-    return result
+    return loaded
 
 
 try:
-    MODEL_OBJECTS = load_models()
+    MODELS = load_models()
     EVALUATION_DATA = load_evaluation()
 except Exception as exc:
-    st.error("Model atau data evaluasi belum siap.")
+    st.error("Model atau data evaluasi tidak dapat dimuat.")
     st.exception(exc)
     st.stop()
 
@@ -280,30 +246,13 @@ def parse_lag(feature):
     return match.group(1), int(match.group(2))
 
 
-def required_base_columns(features):
-    bases = []
-
-    for feature in features:
-        base, lag = parse_lag(feature)
-
-        if base is not None:
-            bases.append(base)
-        elif feature not in {
-            "month",
-            "month_sin",
-            "month_cos",
-        }:
-            bases.append(feature)
-
-    return list(dict.fromkeys(bases))
-
-
-def prepare_data(df, features):
+def prepare_prediction_data(df):
     data = df.copy()
+    data.columns = [str(c).strip() for c in data.columns]
 
     if "Tanggal" not in data.columns:
         raise ValueError(
-            "Kolom 'Tanggal' tidak ditemukan."
+            "Kolom 'Tanggal' tidak ditemukan pada dataset."
         )
 
     data["Tanggal"] = pd.to_datetime(
@@ -322,147 +271,272 @@ def prepare_data(df, features):
                 errors="coerce"
             )
 
-    if "CH" not in data.columns:
-        data["CH"] = np.nan
-
     data = data.sort_values(
         "Tanggal"
     ).reset_index(drop=True)
 
-    # Buat hanya lag yang diminta model.
-    for feature in features:
+    duplicate_count = int(
+        data["Tanggal"].duplicated(keep=False).sum()
+    )
+
+    if "CH" not in data.columns:
+        data["CH"] = np.nan
+
+    # Ambil semua base feature yang dibutuhkan oleh tiga model.
+    all_features = []
+    for config in MODEL_CONFIG.values():
+        all_features.extend(config["features"])
+
+    base_features = set()
+
+    for feature in all_features:
         base, lag = parse_lag(feature)
 
         if base is not None:
-            if base not in data.columns:
-                data[feature] = np.nan
-            else:
+            base_features.add(base)
+
+    # Buat lag persis sesuai kebutuhan model.
+    for feature in sorted(set(all_features)):
+        base, lag = parse_lag(feature)
+
+        if base is not None:
+            if base in data.columns:
                 data[feature] = data[base].shift(lag)
+            else:
+                data[feature] = np.nan
 
-    # Fitur musiman persis seperti Colab.
-    if any(x in features for x in ["month", "month_sin", "month_cos"]):
-        data["month"] = data["Tanggal"].dt.month
+    # Fitur musiman persis seperti pipeline Colab.
+    data["month"] = data["Tanggal"].dt.month
 
-        data["month_sin"] = np.sin(
-            2 * np.pi * data["month"] / 12
+    data["month_sin"] = np.sin(
+        2 * np.pi * data["month"] / 12
+    )
+
+    data["month_cos"] = np.cos(
+        2 * np.pi * data["month"] / 12
+    )
+
+    return data, duplicate_count
+
+
+# ============================================================
+# MODEL VALIDATION
+# ============================================================
+
+def get_model_feature_names(model):
+    names = getattr(
+        model,
+        "feature_names_in_",
+        None
+    )
+
+    if names is None:
+        return None
+
+    return [str(x) for x in names]
+
+
+def validate_model(model_name):
+    model = MODELS[model_name]["model"]
+    expected = MODEL_CONFIG[model_name]["features"]
+
+    actual = get_model_feature_names(model)
+
+    # Jika XGBoost menyimpan feature_names_in_, cocokkan.
+    if actual is not None and actual != expected:
+        raise ValueError(
+            "Model .pkl tidak sesuai dengan pipeline Colab.\n\n"
+            f"Model meminta:\n{actual}\n\n"
+            f"Colab menggunakan:\n{expected}\n\n"
+            "Silakan ekspor ulang model dari notebook Colab yang sesuai."
         )
 
-        data["month_cos"] = np.cos(
-            2 * np.pi * data["month"] / 12
+    n_features = getattr(
+        model,
+        "n_features_in_",
+        None
+    )
+
+    if n_features is not None and int(n_features) != len(expected):
+        raise ValueError(
+            f"Jumlah fitur model tidak sesuai. "
+            f"Model: {n_features}, Colab: {len(expected)}."
         )
 
-    return data
 
-
-def validate_model_object(model_name):
-    cfg = MODELS[model_name]
-    obj = MODEL_OBJECTS[model_name]
-
-    model = obj["model"]
-    features = cfg["features"]
-
-    # XGBoost pada notebook dilatih TANPA StandardScaler.
-    # SVR pada notebook menggunakan StandardScaler.
-    if hasattr(model, "feature_names_in_"):
-        names = [str(x) for x in model.feature_names_in_]
-
-        if names != features:
-            raise ValueError(
-                "Model .pkl tidak cocok dengan notebook Colab.\n\n"
-                f"Model meminta:\n{names}\n\n"
-                f"Colab menggunakan:\n{features}\n\n"
-                "Silakan ekspor ulang model dari Colab menggunakan "
-                "kode penyimpanan yang saya berikan."
-            )
-
-    if hasattr(model, "n_features_in_"):
-        if int(model.n_features_in_) != len(features):
-            raise ValueError(
-                f"Jumlah fitur model = {model.n_features_in_}, "
-                f"sedangkan pipeline Colab = {len(features)}."
-            )
-
-    if cfg["kind"] == "svr":
-        scaler = obj["scaler"]
-
-        if hasattr(scaler, "n_features_in_"):
-            if int(scaler.n_features_in_) != len(features):
-                raise ValueError(
-                    f"Jumlah fitur scaler SVR = {scaler.n_features_in_}, "
-                    f"sedangkan pipeline Colab = {len(features)}."
-                )
-
+# ============================================================
+# PREDICTION
+# ============================================================
 
 def predict_date(data, model_name, selected_date):
-    cfg = MODELS[model_name]
-    obj = MODEL_OBJECTS[model_name]
+    config = MODEL_CONFIG[model_name]
+    model = MODELS[model_name]["model"]
+    scaler = MODELS[model_name]["scaler"]
+    features = config["features"]
 
-    features = cfg["features"]
+    validate_model(model_name)
 
-    row_index = data.index[
-        data["Tanggal"] == pd.Timestamp(selected_date)
+    selected_date = pd.Timestamp(
+        selected_date
+    )
+
+    matches = data.index[
+        data["Tanggal"] == selected_date
     ].tolist()
 
-    if not row_index:
+    if not matches:
         raise ValueError(
             "Tanggal yang dipilih tidak ditemukan."
         )
 
-    idx = row_index[0]
-    X = data.loc[[idx], features].copy()
+    idx = matches[0]
 
-    missing = X.columns[
-        X.isna().any()
+    row = data.loc[
+        [idx],
+        features
+    ].copy()
+
+    missing = row.columns[
+        row.isna().any()
     ].tolist()
 
     if missing:
         raise ValueError(
-            "Data untuk tanggal tersebut belum lengkap.\n\n"
-            "Fitur yang kosong:\n"
+            "Fitur untuk tanggal tersebut belum lengkap:\n\n"
             + ", ".join(missing)
             + "\n\n"
-            "Pastikan data beberapa hari sebelumnya tersedia "
-            "karena model menggunakan lag."
+            "Tanggal tersebut membutuhkan data beberapa hari sebelumnya "
+            "sesuai lag model."
         )
 
-    model = obj["model"]
+    # XGBoost tidak menggunakan scaler pada pipeline Colab.
+    if scaler is not None:
+        try:
+            scaler_names = getattr(
+                scaler,
+                "feature_names_in_",
+                None
+            )
 
-    # XGBoost: langsung ke model, sesuai Colab.
-    if cfg["kind"] == "xgb":
-        prediction = model.predict(X)
+            if scaler_names is not None:
+                scaler_names = [
+                    str(x) for x in scaler_names
+                ]
+                row_for_scaler = row[
+                    scaler_names
+                ]
+            else:
+                row_for_scaler = row
 
-    # SVR: StandardScaler dahulu, sesuai Colab.
+            X_input = scaler.transform(
+                row_for_scaler
+            )
+
+        except Exception as exc:
+            raise RuntimeError(
+                "Scaling SVR gagal.\n\n"
+                f"Fitur: {features}\n"
+                f"Error: {exc}"
+            ) from exc
     else:
-        scaler = obj["scaler"]
-        X_scaled = scaler.transform(X.values)
-        prediction = model.predict(X_scaled)
+        X_input = row
 
-    value = float(
-        np.asarray(prediction).reshape(-1)[0]
+    try:
+        prediction = model.predict(
+            X_input
+        )
+
+    except Exception as exc:
+        raise RuntimeError(
+            f"Prediksi {model_name} gagal.\n\n"
+            f"Jumlah fitur: {len(features)}\n"
+            f"Fitur: {features}\n"
+            f"Error: {exc}"
+        ) from exc
+
+    prediction = float(
+        np.asarray(
+            prediction
+        ).reshape(-1)[0]
     )
 
-    return value, data.loc[idx]
+    return prediction, data.loc[idx]
 
 
 # ============================================================
-# METRICS
+# EVALUATION HELPERS
 # ============================================================
 
-def calculate_metrics(result):
-    actual = pd.to_numeric(
+def normalize_evaluation_columns(df):
+    result = df.copy()
+    result.columns = [
+        str(c).strip()
+        for c in result.columns
+    ]
+
+    # Cari nama kolom tanggal secara fleksibel.
+    date_candidates = [
+        "Tanggal",
+        "tanggal",
+        "Date",
+        "date",
+        "DATE",
+    ]
+
+    date_col = next(
+        (
+            c for c in date_candidates
+            if c in result.columns
+        ),
+        None
+    )
+
+    if date_col is not None:
+        result["Tanggal"] = pd.to_datetime(
+            result[date_col],
+            errors="coerce"
+        )
+    else:
+        # Jika file evaluasi tidak mempunyai tanggal,
+        # gunakan nomor observasi agar visualisasi tetap berjalan.
+        result["Tanggal"] = np.arange(
+            1,
+            len(result) + 1
+        )
+
+    required = ["Actual", "Prediction"]
+
+    missing = [
+        c for c in required
+        if c not in result.columns
+    ]
+
+    if missing:
+        raise ValueError(
+            "Kolom evaluasi tidak lengkap. "
+            f"Kolom yang tidak ditemukan: {missing}"
+        )
+
+    result["Actual"] = pd.to_numeric(
         result["Actual"],
         errors="coerce"
     )
 
-    prediction = pd.to_numeric(
+    result["Prediction"] = pd.to_numeric(
         result["Prediction"],
         errors="coerce"
     )
 
-    valid = actual.notna() & prediction.notna()
+    result = result.dropna(
+        subset=["Actual", "Prediction"]
+    ).reset_index(drop=True)
 
-    actual = actual[valid]
-    prediction = prediction[valid]
+    return result
+
+
+def calculate_metrics(result):
+    actual = result["Actual"]
+    prediction = result["Prediction"]
 
     rmse = np.sqrt(
         mean_squared_error(
@@ -489,7 +563,7 @@ def calculate_metrics(result):
                     / actual[nonzero]
                 )
             )
-            * 100
+            * 10
         )
     else:
         mape = np.nan
@@ -497,7 +571,7 @@ def calculate_metrics(result):
     return rmse, mae, mape
 
 
-def to_excel(df):
+def dataframe_to_excel(df):
     buffer = io.BytesIO()
 
     with pd.ExcelWriter(
@@ -511,6 +585,7 @@ def to_excel(df):
         )
 
     buffer.seek(0)
+
     return buffer.getvalue()
 
 
@@ -529,7 +604,7 @@ with st.sidebar:
             "🏠 Home",
             "🌧️ Prediction",
             "📊 Model Evaluation",
-        ]
+        ],
     )
 
 
@@ -544,11 +619,14 @@ if menu == "🏠 Home":
         <div class="hero">
             <h1>🌧️ Daily Rainfall Prediction</h1>
             <p>
-                Sistem prediksi intensitas curah hujan harian.
+                Sistem prediksi intensitas curah hujan harian menggunakan
+                pendekatan Hybrid TabNet dengan XGBoost dan SVR.
+                Pilih model dan tanggal untuk memperoleh hasil prediksi
+                dalam satuan milimeter (mm).
             </p>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
     c1, c2, c3 = st.columns(3)
@@ -557,42 +635,42 @@ if menu == "🏠 Home":
         st.markdown(
             """
             <div class="card">
-                <h3>📁 Data Meteorologi</h3>
+                <h3>📁 Data</h3>
                 <p>
-                    Dataset Excel digunakan sebagai sumber data
-                    meteorologi dan curah hujan.
+                    Gunakan dataset bersih dalam format Excel
+                    sebagai data input.
                 </p>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
     with c2:
         st.markdown(
             """
             <div class="card">
-                <h3>🤖 Hybrid Model</h3>
+                <h3>🤖 Model</h3>
                 <p>
                     Tersedia Hybrid TabNet-XGBoost,
                     Extreme, dan Hybrid TabNet-SVR.
                 </p>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
     with c3:
         st.markdown(
             """
             <div class="card">
-                <h3>📊 Evaluasi</h3>
+                <h3>📊 Evaluation</h3>
                 <p>
-                    Evaluasi dilengkapi RMSE, MAE, MAPE,
-                    residual dan visualisasi aktual-prediksi.
+                    Lihat RMSE, MAE, MAPE, scatter,
+                    residual, dan distribusi error.
                 </p>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
 
     st.markdown("### Cara Menggunakan")
@@ -600,26 +678,22 @@ if menu == "🏠 Home":
     a, b, c = st.columns(3)
 
     with a:
-        st.info(
-            "**01 — Upload Dataset**\n\n"
-            "Masukkan dataset bersih Excel."
-        )
+        st.info("**01 — Upload**\n\nUpload dataset Excel.")
 
     with b:
-        st.info(
-            "**02 — Pilih Tanggal**\n\n"
-            "Tentukan tanggal yang ingin diprediksi."
-        )
+        st.info("**02 — Pilih Tanggal**\n\nTentukan tanggal prediksi.")
 
     with c:
-        st.info(
-            "**03 — Lihat Hasil**\n\n"
-            "Sistem menampilkan intensitas hujan dalam mm."
-        )
+        st.info("**03 — Prediksi**\n\nHasil ditampilkan dalam mm.")
+
+    st.success(
+        "Silakan buka menu **Prediction** untuk memulai."
+    )
 
 
 # ============================================================
 # PREDICTION
+# Tidak ada plot sesuai permintaan.
 # ============================================================
 
 elif menu == "🌧️ Prediction":
@@ -629,91 +703,83 @@ elif menu == "🌧️ Prediction":
         <div class="hero">
             <h1>🌧️ Rainfall Prediction</h1>
             <p>
-                Pilih model dan tanggal.
+                Pilih model dan tanggal yang ingin diprediksi.
+                Hasil akhir ditampilkan sebagai intensitas curah hujan
+                dalam satuan milimeter (mm).
             </p>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
     model_name = st.selectbox(
         "Prediction Model",
-        list(MODELS.keys())
+        MODEL_OPTIONS,
     )
-
-    # Cek apakah .pkl sesuai pipeline Colab.
-    try:
-        validate_model_object(model_name)
-    except Exception as exc:
-        st.error("Model di folder models belum konsisten dengan Colab.")
-        st.exception(exc)
-
-        st.info(
-            "Jangan mengganti daftar fitur di app.py. "
-            "Ekspor ulang model dari notebook Colab menggunakan "
-            "kode penyimpanan yang disediakan."
-        )
-
-        st.stop()
 
     uploaded = st.file_uploader(
         "Upload Dataset Bersih (.xlsx)",
         type=["xlsx"],
+        help="Gunakan dataset bersih yang digunakan pada penelitian.",
     )
 
     if uploaded is not None:
 
-        features = MODELS[model_name]["features"]
-
         try:
-            raw = pd.read_excel(uploaded)
-
-            required = required_base_columns(
-                features
+            raw_df = pd.read_excel(
+                uploaded
             )
 
-            missing = [
-                col for col in required
-                if col not in raw.columns
-            ]
-
-            if missing:
-                st.error(
-                    "Variabel dasar berikut tidak ditemukan:"
-                )
-                st.write(missing)
-                st.stop()
-
-            data = prepare_data(
-                raw,
-                features
+            data, duplicate_count = prepare_prediction_data(
+                raw_df
             )
 
         except Exception as exc:
-            st.error("Dataset tidak dapat diproses.")
+            st.error(
+                "Dataset tidak dapat diproses."
+            )
             st.exception(exc)
             st.stop()
 
+        if duplicate_count:
+            st.warning(
+                f"Ditemukan {duplicate_count} baris dengan tanggal duplikat. "
+                "Sistem menggunakan baris pertama untuk tanggal yang sama."
+            )
+
+        features = MODEL_CONFIG[
+            model_name
+        ]["features"]
+
+        # Pastikan semua base variable tersedia.
+        required_base = set()
+
+        for feature in features:
+            base, lag = parse_lag(feature)
+
+            if base is not None:
+                required_base.add(base)
+
+        missing_base = [
+            col for col in sorted(required_base)
+            if col not in data.columns
+        ]
+
+        if missing_base:
+            st.error(
+                "Variabel yang dibutuhkan model tidak tersedia:"
+            )
+            st.write(missing_base)
+            st.stop()
+
         st.success(
-            f"Dataset berhasil dimuat — {len(data):,} baris."
+            f"Dataset berhasil dimuat: "
+            f"**{len(data):,} baris**."
         )
 
-        with st.expander("Preview Dataset"):
-            st.dataframe(
-                raw.head(10),
-                use_container_width=True,
-                hide_index=True
-            )
-
-        with st.expander("Fitur Model"):
-            st.write(
-                f"**{len(features)} fitur**"
-            )
-            st.write(features)
-
-        valid_mask = data[features].notna().all(
-            axis=1
-        )
+        valid_mask = data[
+            features
+        ].notna().all(axis=1)
 
         valid_dates = (
             data.loc[
@@ -727,34 +793,40 @@ elif menu == "🌧️ Prediction":
 
         if not valid_dates:
             st.error(
-                "Tidak ada tanggal dengan seluruh fitur "
-                "yang diperlukan."
+                "Tidak ada tanggal yang memiliki data lengkap "
+                "untuk model yang dipilih."
             )
             st.stop()
 
+        st.markdown(
+            "### Pilih Tanggal Prediksi"
+        )
+
         selected_date = st.selectbox(
-            "Tanggal Prediksi",
+            "Tanggal",
             valid_dates,
             format_func=lambda x:
                 pd.Timestamp(x).strftime(
                     "%d-%m-%Y"
-                )
+                ),
         )
 
         if st.button(
             "🔮 Prediksi Intensitas Hujan",
             type="primary",
-            use_container_width=True
+            use_container_width=True,
         ):
 
             try:
                 prediction, selected_row = predict_date(
                     data,
                     model_name,
-                    selected_date
+                    selected_date,
                 )
 
-                st.session_state.prediction_result = {
+                st.session_state[
+                    "prediction_result"
+                ] = {
                     "date": pd.Timestamp(
                         selected_date
                     ),
@@ -764,7 +836,10 @@ elif menu == "🌧️ Prediction":
                 }
 
             except Exception as exc:
-                st.session_state.prediction_result = None
+                st.session_state[
+                    "prediction_result"
+                ] = None
+
                 st.error(
                     "Prediksi tidak berhasil."
                 )
@@ -775,6 +850,7 @@ elif menu == "🌧️ Prediction":
         )
 
         if result is not None:
+
             if (
                 result["model"] == model_name
                 and result["date"]
@@ -801,7 +877,7 @@ elif menu == "🌧️ Prediction":
                         </div>
                     </div>
                     """,
-                    unsafe_allow_html=True
+                    unsafe_allow_html=True,
                 )
 
                 c1, c2 = st.columns(2)
@@ -809,67 +885,22 @@ elif menu == "🌧️ Prediction":
                 with c1:
                     st.metric(
                         "Prediksi Curah Hujan",
-                        f'{result["prediction"]:.2f} mm'
+                        f'{result["prediction"]:.2f} mm',
                     )
 
                 with c2:
-                    if pd.notna(result["actual"]):
+                    if pd.notna(
+                        result["actual"]
+                    ):
                         st.metric(
                             "Curah Hujan Aktual",
-                            f'{float(result["actual"]):.2f} mm'
+                            f'{float(result["actual"]):.2f} mm',
                         )
                     else:
                         st.metric(
                             "Curah Hujan Aktual",
-                            "Tidak tersedia"
+                            "Belum tersedia",
                         )
-
-                # Grafik sekitar tanggal yang dipilih.
-                idx = data.index[
-                    data["Tanggal"]
-                    == pd.Timestamp(selected_date)
-                ][0]
-
-                context = data.iloc[
-                    max(0, idx - 7):
-                    min(len(data), idx + 8)
-                ].copy()
-
-                context["Prediction"] = np.nan
-
-                context.loc[
-                    context["Tanggal"]
-                    == pd.Timestamp(selected_date),
-                    "Prediction"
-                ] = result["prediction"]
-
-                fig = px.line(
-                    context,
-                    x="Tanggal",
-                    y=["CH", "Prediction"],
-                    markers=True,
-                    template="plotly_white",
-                    labels={
-                        "value": "Rainfall (mm)",
-                        "Tanggal": "Tanggal",
-                        "variable": ""
-                    }
-                )
-
-                fig.update_layout(
-                    height=430,
-                    hovermode="x unified",
-                    legend_title=""
-                )
-
-                st.markdown(
-                    "### Visualisasi Prediksi"
-                )
-
-                st.plotly_chart(
-                    fig,
-                    use_container_width=True
-                )
 
 
 # ============================================================
@@ -883,31 +914,37 @@ elif menu == "📊 Model Evaluation":
         <div class="hero">
             <h1>📊 Model Evaluation</h1>
             <p>
-                Evaluasi hasil pengujian model dengan metrik,
-                tabel hasil dan visualisasi kesalahan prediksi.
+                Evaluasi performa model menggunakan data pengujian,
+                dilengkapi metrik dan visualisasi kesalahan prediksi.
             </p>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
     model_name = st.selectbox(
         "Evaluation Model",
-        list(MODELS.keys())
+        MODEL_OPTIONS,
     )
 
-    result = EVALUATION_DATA[
-        model_name
-    ].copy()
-
-    if "Tanggal" in result.columns:
-        result["Tanggal"] = pd.to_datetime(
-            result["Tanggal"],
-            errors="coerce"
+    try:
+        result = normalize_evaluation_columns(
+            EVALUATION_DATA[model_name]
         )
 
-    rmse, mae, mape = calculate_metrics(
-        result
+        rmse, mae, mape = calculate_metrics(
+            result
+        )
+
+    except Exception as exc:
+        st.error(
+            "Data evaluasi tidak dapat diproses."
+        )
+        st.exception(exc)
+        st.stop()
+
+    st.markdown(
+        "### Performance Metrics"
     )
 
     c1, c2, c3 = st.columns(3)
@@ -931,7 +968,10 @@ elif menu == "📊 Model Evaluation":
 
     st.divider()
 
-    # Download digabung di Model Evaluation.
+    # --------------------------------------------------------
+    # DOWNLOAD
+    # --------------------------------------------------------
+
     st.markdown(
         "### Download Hasil Evaluasi"
     )
@@ -946,96 +986,117 @@ elif menu == "📊 Model Evaluation":
             ).encode("utf-8"),
             file_name="hasil_evaluasi.csv",
             mime="text/csv",
-            use_container_width=True
+            use_container_width=True,
         )
 
     with d2:
         st.download_button(
             "⬇️ Download Excel",
-            data=to_excel(result),
+            data=dataframe_to_excel(
+                result
+            ),
             file_name="hasil_evaluasi.xlsx",
             mime=(
                 "application/vnd.openxmlformats-officedocument."
                 "spreadsheetml.sheet"
             ),
-            use_container_width=True
+            use_container_width=True,
         )
 
     st.divider()
 
     st.markdown(
-        "### Prediction Result"
+        "### Prediction Result — Testing Data"
     )
 
     st.dataframe(
         result,
         use_container_width=True,
-        hide_index=True
+        hide_index=True,
     )
 
     st.divider()
 
-    # Actual vs Prediction
+    # --------------------------------------------------------
+    # 1. ACTUAL VS PREDICTION
+    # --------------------------------------------------------
+
     st.markdown(
         "### 1. Actual vs Prediction"
     )
 
+    plot_data = result[
+        ["Tanggal", "Actual", "Prediction"]
+    ].copy()
+
+    plot_data = plot_data.melt(
+        id_vars=["Tanggal"],
+        value_vars=[
+            "Actual",
+            "Prediction"
+        ],
+        var_name="Series",
+        value_name="Rainfall",
+    )
+
     fig1 = px.line(
-        result,
+        plot_data,
         x="Tanggal",
-        y=["Actual", "Prediction"],
+        y="Rainfall",
+        color="Series",
+        markers=False,
         template="plotly_white",
-        labels={
-            "value": "Rainfall (mm)",
-            "Tanggal": "Date",
-            "variable": ""
-        }
     )
 
     fig1.update_layout(
-        height=520,
+        height=500,
+        xaxis_title="Date",
+        yaxis_title="Rainfall (mm)",
+        legend_title="",
         hovermode="x unified",
-        legend_title=""
     )
 
     st.plotly_chart(
         fig1,
-        use_container_width=True
+        use_container_width=True,
     )
 
-    # Scatter
+    # --------------------------------------------------------
+    # 2. ACTUAL VS PREDICTED
+    # --------------------------------------------------------
+
     st.markdown(
         "### 2. Actual vs Predicted"
     )
 
-    scatter = result.dropna(
-        subset=[
-            "Actual",
-            "Prediction"
-        ]
-    ).copy()
+    scatter = result[
+        ["Actual", "Prediction"]
+    ].dropna()
 
     fig2 = px.scatter(
         scatter,
         x="Actual",
         y="Prediction",
-        opacity=.7,
+        opacity=0.70,
         template="plotly_white",
         labels={
-            "Actual": "Actual Rainfall (mm)",
-            "Prediction": "Predicted Rainfall (mm)"
-        }
+            "Actual":
+                "Actual Rainfall (mm)",
+            "Prediction":
+                "Predicted Rainfall (mm)",
+        },
     )
 
     if not scatter.empty:
+
         low = min(
             scatter["Actual"].min(),
-            scatter["Prediction"].min()
+            scatter["Prediction"].min(),
         )
 
         high = max(
             scatter["Actual"].max(),
-            scatter["Prediction"].max()
+            scatter["Prediction"].max(),
         )
 
         fig2.add_shape(
@@ -1044,28 +1105,37 @@ elif menu == "📊 Model Evaluation":
             y0=low,
             x1=high,
             y1=high,
-            line=dict(dash="dash")
+            line=dict(
+                dash="dash"
+            ),
         )
 
     fig2.update_layout(
-        height=500
+        height=500,
+        xaxis_title="Actual Rainfall (mm)",
+        yaxis_title="Predicted Rainfall (mm)",
     )
 
     st.plotly_chart(
         fig2,
-        use_container_width=True
+        use_container_width=True,
     )
 
-    # Residual
-    residual = result.copy()
+    # --------------------------------------------------------
+    # 3. RESIDUAL
+    # --------------------------------------------------------
+
+    st.markdown(
+        "### 3. Residual Error"
+    )
+
+    residual = result[
+        ["Tanggal", "Actual", "Prediction"]
+    ].copy()
 
     residual["Residual"] = (
         residual["Actual"]
         - residual["Prediction"]
-    )
-
-    st.markdown(
-        "### 3. Residual Error"
     )
 
     fig3 = px.line(
@@ -1073,27 +1143,28 @@ elif menu == "📊 Model Evaluation":
         x="Tanggal",
         y="Residual",
         template="plotly_white",
-        labels={
-            "Residual": "Residual (mm)",
-            "Tanggal": "Date"
-        }
     )
 
     fig3.add_hline(
         y=0,
-        line_dash="dash"
+        line_dash="dash",
     )
 
     fig3.update_layout(
-        height=420
+        height=420,
+        xaxis_title="Date",
+        yaxis_title="Residual (mm)",
     )
 
     st.plotly_chart(
         fig3,
-        use_container_width=True
+        use_container_width=True,
     )
 
-    # Error distribution
+    # --------------------------------------------------------
+    # 4. ERROR DISTRIBUTION
+    # --------------------------------------------------------
+
     st.markdown(
         "### 4. Distribution of Prediction Error"
     )
@@ -1103,18 +1174,15 @@ elif menu == "📊 Model Evaluation":
         x="Residual",
         nbins=30,
         template="plotly_white",
-        labels={
-            "Residual": "Prediction Error (mm)"
-        }
     )
 
     fig4.update_layout(
         height=400,
         xaxis_title="Prediction Error (mm)",
-        yaxis_title="Frequency"
+        yaxis_title="Frequency",
     )
 
     st.plotly_chart(
         fig4,
-        use_container_width=True
+        use_container_width=True,
     )
