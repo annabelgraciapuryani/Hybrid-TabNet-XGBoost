@@ -549,7 +549,7 @@ def calculate_metrics(result):
                     / actual[mask]
                 )
             )
-            * 100
+            * 10
         )
     else:
         mape = np.nan
@@ -605,9 +605,7 @@ if menu == "🏠 Home":
             <h1>🌧️ Daily Rainfall Prediction</h1>
             <p>
                 Sistem prediksi intensitas curah hujan harian berbasis
-                Hybrid TabNet dengan XGBoost dan SVR. Pilih model dan
-                tanggal untuk memperoleh prediksi curah hujan dalam
-                satuan milimeter (mm).
+                Hybrid TabNet dengan XGBoost dan SVR.
             </p>
         </div>
         """,
@@ -622,8 +620,7 @@ if menu == "🏠 Home":
             <div class="card">
                 <h3>📁 Data</h3>
                 <p>
-                    Upload dataset bersih dalam format Excel
-                    untuk digunakan sebagai input prediksi.
+                    Upload dataset dalam format Excel
                 </p>
             </div>
             """,
@@ -636,7 +633,7 @@ if menu == "🏠 Home":
             <div class="card">
                 <h3>🤖 Model</h3>
                 <p>
-                    Tersedia Hybrid TabNet-XGBoost,
+                    Hybrid TabNet-XGBoost,Hybrid TabNet-XGBoost dengan penanganan data
                     Extreme, dan Hybrid TabNet-SVR.
                 </p>
             </div>
@@ -650,8 +647,7 @@ if menu == "🏠 Home":
             <div class="card">
                 <h3>📊 Evaluation</h3>
                 <p>
-                    Evaluasi RMSE, MAE, MAPE dan
-                    Actual vs Prediction.
+                    Evaluasi RMSE, MAE, MAPE.
                 </p>
             </div>
             """,
@@ -669,7 +665,7 @@ if menu == "🏠 Home":
         st.info("**02 — Pilih**\n\nPilih model dan tanggal.")
 
     with c:
-        st.info("**03 — Prediksi**\n\nLihat intensitas hujan dalam mm.")
+        st.info("**03 — Prediksi**\n\nTertampil intensitas hujan dalam mm.")
 
 
 # ============================================================
@@ -881,7 +877,7 @@ elif menu == "📊 Model Evaluation":
             <p>
                 Evaluasi performa model pada data pengujian.
                 Tersedia RMSE, MAE, MAPE, tabel hasil prediksi,
-                download data, dan satu visualisasi Actual vs Prediction.
+                download data, dan visualisasi Actual vs Prediction.
             </p>
         </div>
         """,
